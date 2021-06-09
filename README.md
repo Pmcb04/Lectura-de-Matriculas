@@ -8,25 +8,43 @@
    - [Qt](https://www.qt.io/)
    - [Qt Creator](https://www.qt.io/product/development-tools)
 
+
+## **INDICE**
+- [Práctica : Detección de matrícula](#ent1)
+- [Descripción de la aplicación](#ent11)
+- [¿Qué es Qt?](#ent12)
+- [Puesta en marcha del proyecto](#ent13)
+- [Funcionamiento de la aplicación](#ent14)
+- [Componentes de la aplicación](#ent15)
+- [Extensiones principales en x86-64](#ent16)
+- [Especificación de los objetivos de la práctica](#ent17)
+- [Recepción de tramas de control](#ent18)
+
+
+<a name ="ent1"></a>
 ## :green_book: Práctica: Detección de matrícula
 
 El principal objetivo de esta práctica es completar una aplicación, escrita en C++ sobre Linux, a través de la implementación en ensamblador de las diferentes operaciones que debe proporcionar el programa. La integración de los dos lenguaes se leevará a cabo mediante las facilidades del ensamblado en línea proporcionadas por el compilador _gcc_
 
 A continuación, se detallan diferentes aspectos a tener en cuenta para el desarrollo de esta práctica. 
 
-### Descripción de la aplicación
+<a name ="ent11"></a>
+### :pencil: **Descripción de la aplicación**
 
 El código ddque deberá ser completado estará incluido en una aplicación C++, disponible como proyecto de Qt. La siguiente figura muestra una captura de pantalla en un instante de ejecución de la aplicación.
 
-![Figura 1](https://github.com/Pmcb04/Lectura-de-Matriculas/tree/master/images/fig1.png)
+![Figura 1](https://github.com/Pmcb04/Lectura-de-Matriculas/blob/master/images/fig1.png)
 
-#### ¿Qué es Qt?
+<a name ="ent12"></a>
+#### :pushpin: **¿Qué es Qt?**
 Qt es un _framework_ de desarollo de aplicaciones que, entre otras cosas aportaciones, proporciona herramientas y librerías de clases para la creación de interfaces de usuario en entornos de escritorio. 
 
-#### Puesta en marcha del proyecto
+<a name ="ent13"></a>
+#### :bicyclist: **Puesta en marcha del proyecto**
 El fichero que contiene la descripción del proyecto (_pracaoc.pro_) se encuentra disponible en la carpeta principal de la aplicación. Dicho fichero puede ser utilizadoo para importar el proyecto desde diferentes entornos de desarrollo. No obstante, se recomienda trabajar con _QtCreator_ (paquete _qtcreator_). Es necesario instalar además los paquetes _qt5-default y qttools5-dev-tools_.
 
-#### Funcionamiente de la aplicación
+<a name ="ent14"></a>
+#### :rocket: **Funcionamiente de la aplicación**
 La interfaz principal (figura 1) está compuesta por varias de imagen y una serie de botones a través de los cuales es posible ejecutar las diferentes operaciones que proporciona la apliación. Las dos ventanas de imagen situadas en la parte superior se corresponden con la imagen de la matrícula original (ventana de la izquierda) y con la imagen una vez filtrada (ventana de la derecha). 
 
 La primera es usada como punto de partida del proceso de detección, mientras que la segunda muestra el resultado tras la aplicación de distintas fases del proceso. Estas imágenes tienen inicialmente un tamaño de 320x100 pixels y 255 niveles de gris originalmente aunque en fases posteriores se desechan todos los niveles excepto del 0 (negro :black_circle: ) y 255 (blanco :white_circle: ).  
@@ -46,31 +64,31 @@ El conjunto de 7 imágenes situadas debajo de la matrícula filtrada tienen un t
 
 - **Invertir** el nivel de gris de cada píxel dee la imagen origen es invertido (255 - nivel de gris) y almacendao en la imagen destino. 
 
-![Figura 2](https://github.com/Pmcb04/Lectura-de-Matriculas/tree/master/images/fig2.png)
+![Figura 2](https://github.com/Pmcb04/Lectura-de-Matriculas/blob/master/images/fig2.png)
 
 - **Umbralizar** trasforma la imagen en escala de grises en una imagen en blanco y negro para lo cual aplica a cada punto de la imagen origen la comparación con el nivel de gris medio (128). Los píxeles con valores superiores pasan a valer 255  (blanco :white_circle:) mientras que el resto serán 0 (negro :black_circle:).
 
-![Figura 3](https://github.com/Pmcb04/Lectura-de-Matriculas/tree/master/images/fig3.png)
+![Figura 3](https://github.com/Pmcb04/Lectura-de-Matriculas/blob/master/images/fig3.png)
 
 - **Eliminar ruido** elimina el posible ruido en la imagen utilizando dos fases de procesamiento, una vez que la imagen ha sido invertida y umbralizada. En la primera fase, por cada píxel, comprueba si todos los puntos de su entorno (3x3) son blancos. En tal cosa pone a 255 el píxel en el destino y, en caso contrario, lo pone a 0. En la segunda dase, vuelve a analizar el entorno de cada píxel de la iamgen generada por la fase anterior. Si existe algún píxel blanco en su entorno, pone a 255 el píxel en la imagen destino y, en caso contrario, lo pone a 0.
 
-![Figura 4](https://github.com/Pmcb04/Lectura-de-Matriculas/tree/master/images/fig4.png)
+![Figura 4](https://github.com/Pmcb04/Lectura-de-Matriculas/blob/master/images/fig4.png)
 
 - **Margen vertical** partiendo de la imagen derecha, una vez aplicadas las operaciones anteriores, determina los limites en fila superior e inferior a partir de las cuales hay caracteres alfanuméricos. Para realizar esta operación, se aplica la integral proyectica a cada fila de la iamgen (suma de píxeles blancos de la fila). Busca las dos primeras filas desde arriba y desde abajo que cumplan que la suma de sus puntos sea mayor que un valor umbral determinado en la aplicación.  
 
   Una vez determinadas las filas superior e inferior, la aplicación las marca en la imagen de proceso.
 
-![Figura 5](https://github.com/Pmcb04/Lectura-de-Matriculas/tree/master/images/fig5.png)
+![Figura 5](https://github.com/Pmcb04/Lectura-de-Matriculas/blob/master/images/fig5.png)
 
 - **Margen horizontal** al igual que la operación anterior, realiza la integral proyectiva de cada columna de la imagen procesada de tal forma que determina en que bandas de columna existen dígitos y en cuales no. Lo hace en dos fases, primero calcula que columnas contienen puntos blancos por encima del umbral fijado para posteriormente fijar el punto medio de cada zona. De esta forma se obtiene la columna central aproximada de cada dígito en la imagen.  
 
   El proceso termina marcando en la imagen filtrada los limites aproximados entre los que se encuentra cada uno de los caracteres alganuméricos (columna_central - 16, columna_central + 16)
 
-![Figura 6](https://github.com/Pmcb04/Lectura-de-Matriculas/tree/master/images/fig6.png)
+![Figura 6](https://github.com/Pmcb04/Lectura-de-Matriculas/blob/master/images/fig6.png)
 
 - **Recortar** con los dos procesos anteriores se puede obtener la ventana de imagen donde aparece cada uno de los caracteres de una matrícula. A partir de las posiciones de estas ventanas, teniendo en cuenta que cada carácter ocupa aproximadamente 32x55 píxeles, este proceso se encarga de recortar de la imagen procesada cada una de las imágenes individuales de caracteres y de copiarlas a las ventanas de imagen correspondientes. 
 
-![Figura 7](https://github.com/Pmcb04/Lectura-de-Matriculas/tree/master/images/fig7.png)
+![Figura 7](https://github.com/Pmcb04/Lectura-de-Matriculas/blob/master/images/fig7.png)
 
 - **Matching** este es el ultimo proceso y el más complejo. Finaliza cuando se obtiene una cadena de caracteres que identifican a los de la imagen.  
 
@@ -78,9 +96,11 @@ El conjunto de 7 imágenes situadas debajo de la matrícula filtrada tienen un t
 
   El proceso se realiza para cada una de las imágenes obtenidas del proceso anterior (_recortar_) y consiste en comparar cada imagen con un conjunto posible. La comparación con cada imagen del conjunto da como resultado un valor que representa la similitud entre las dos imagenes. El carácter asociado con la imagen del conjunto para la que el valor de similitud sea mayor, se considera el carácter finalmente identificado. 
 
-![Figura 8](https://github.com/Pmcb04/Lectura-de-Matriculas/tree/master/images/fig8.png)
+![Figura 8](https://github.com/Pmcb04/Lectura-de-Matriculas/blob/master/images/fig8.png)
 
-#### Componentes de la aplicación
+
+<a name ="ent15"></a>
+#### :robot: **Componentes de la aplicación**
 
 El código fuente de la aplicación está formado por 5 ficheros: 
 
@@ -102,7 +122,8 @@ Además, existe un formulario de Qt _mainForm.ui_ y otros ficheros necesarios pa
 
 - _imagesprocess.cpp_ implementación de las funciones de procesamiento de imagen que se ejecutan a través de las distintas opciones de la aplicación. La mayoría de estas funciones contienen una implementacion vacía. el objetivo de esta práctica es completarlas para que el funcionamiento de la aplicación sea el descrito anteriormente. 
 
-#### Extensiones principales en x86-64
+<a name ="ent16"></a>
+#### :paperclip: **Extensiones principales en x86-64**
 
 - En relación a la representación de datos en memoria, en 64 bits, los punteros y los datos de tipo long ocupan 64 bits. El resto de tipos mantiene el mismo tamaño que en la línea de procesadores de 32 bits (int: 4 bytes, short: 2 bytes, …).  
 
@@ -114,7 +135,8 @@ Además, existe un formulario de Qt _mainForm.ui_ y otros ficheros necesarios pa
 
 - Aparecen 8 nuevos registros de propósito general de 64 bits (%r8, %r9, …, %r15). Es posible acceder a los 4, 2 o al último byte de estos registros incluyendo en su nombre el sufijo d, w o b (%r8d – 4 bytes, %r8w – 2 bytes, %r8b – 1 byte).
 
-### Especificación de los objetivos de la práctica
+<a name ="ent17"></a>
+### :100: Especificación de los objetivos de la práctica
 
 El principal objetivo de esta práctica es completar el código de la aplicación descrita para que su funcionamiento sea el que se detalla en la sección _“Funcionamiento de la aplicación”_, incluida es esta documentación. Para ello, se deberán implementar, en lenguaje ensamblador, los procedimientos “vacíos” del módulo _“imageprocess.cpp”_. Estos procedimientos son invocados por las distintas opciones del programa. Para cada uno de ellos, se proporciona la estructura inicial del bloque ensamblador, en la que se ha incluido la definición de operandos que afectan a la implementación. La lista de registros utilizados incluye únicamente la palabra _“memory”_, ya que en todos los casos la memoria es modificada. La inclusión de registros dentro de esta lista dependerá de la implementación que se desarrolle en cada caso, por lo que, será necesario completarla para cada uno de los procedimientos.
 
@@ -192,3 +214,279 @@ Hay que considerar que el tamaño de _imgO_ en cualquier caso es _320x100_.
 Este procedimiento recibe por parámetro una imagen (_caracM_) de tamaño _32x55_, que contiene uno de los caracteres de matrícula obtenidos de la fase anterior, y un vector de imágenes (_patrones_) también de tamaño _32x55_. Cada imagen de este vector contiene la representación estándar (_patrón_) de uno de los posibles caracteres de una matrícula (_números y letras_). El procedimiento compara la imagen almacenada en caracM con las imágenes disponibles en el vector patrones y devuelve el índice del vector que contiene la imagen más similar. Para evitar comparar imágenes que contienen números con imágenes de letras y viceversa, el procedimiento recibe por parámetro el índice inicial del vector (_ini_) que contiene la primera imagen con la que se debe comparar y el número de patrones posibles (_tam_).
 
 Para obtener un valor que cuantifique la similitud entre la imagen caracM y el patrón correspondiente, se llevará a cabo una comparación píxel a píxel de la siguiente forma: si los dos píxeles son iguales y tienen valor 255, la similitud se incrementa en 3; si ambos son iguales y su valor es 0, la similitud se incrementa en 1; si los dos píxeles son distintos, la similitud se decrementa en 1. Siguiendo este proceso, el patrón que obtenga el máximo valor de similitud, será el mejor candidato y el procedimiento retornará el índice de dicho patrón en el vector.
+
+
+<a name ="ent18"></a>
+### :brain: **Pseudocodigo**
+
+Se incluye a continuación un pseudocódigo por cada uno de los procedimientos que se deben implementar en esta práctica. Para aquellos datos usados que no están definidos como operandos se deja libertad de utilizar registros o variables locales, aunque en algunos casos sea obligatorio el uso de registros (cuando los datos se usen para direccionar la memoria). En cualquier caso, se recuerda que en la arquitectura de 64 bits hay 8 nuevos registros de propósito general que pueden utilizarse como almacenes de datos auxiliares, evitando el uso de variables locales.
+
+
+~~~ C++
+void borrar(uchar * imgD, int w, int h)
+{
+  dirDest = imgD;
+  tam = w*h
+
+  Para(p=0; p<tam; p++)
+  {
+    [dirDest] = 0;
+    dirDest++;
+  }
+}
+
+
+void invertir(uchar * imgO, uchar * imgD, int w, int h)
+{
+  dirOrig = imgO;
+  dirDest = imgD;
+  tam = w*h
+
+  Para(p=0; p<tam; p++)
+  {
+    [dirDest] = 255-[dirOrig];
+    dirOrig++;
+    dirDest++;
+  }
+}
+
+
+void umbralizar(uchar * imgD, int w, int h)
+{
+  dirDest = imgD;
+  tam = w*h
+
+  Para(p=0; p<tam; p++)
+  {
+    Si([dirDest]>128)
+      [dirDest] = 255;
+    Sino
+      [dirDest] = 0;
+    dirDest++;
+  }
+}
+
+
+void eliminarRuido_F1(uchar * imgO, uchar * imgD, int w, int h)
+{
+  dirOrig = imgO;
+  dirDest = imgD;
+
+  Para(f=1; f<h-1; f++)
+  {
+    Para(c=1; c<w-1; c++)
+    {
+      df=-1;
+      tBlancos = true;
+      Mientras(df<=1 y tBlancos)
+      {
+        dc=-1;
+        Mientras(dc<=1 y tBlancos)
+        {
+          posPixel = (f+df)*w + (c+dc);
+          Si([dirOrig+posPixel]==0)
+            tBlancos=false;
+          dc++
+        }
+        df++;
+      }
+      posPixel = f*w + c;
+      Si(tBlancos)
+        [dirDest+posPixel] = 255;
+      Sino
+        [dirDest+posPixel] = 0;
+    }
+  }
+}
+
+
+void eliminarRuido_F2(uchar * imgO, uchar * imgD, int w, int h)
+{
+  dirOrig = imgO;
+  dirDest = imgD;
+
+  Para(f=1; f<h-1; f++)
+  {
+    Para(c=1; c<w-1; c++)
+    {
+      df=-1;
+      aBlanco = false;
+      Mientras(df<=1 y no aBlanco)
+      {
+        dc=-1;
+        Mientras(dc<=1 y no aBlanco)
+        {
+          posPixel = (f+df)*w + (c+dc);
+          Si([dirOrig+posPixel]==255)
+            aBlanco=true;
+          dc++
+        }
+        df++;
+      }
+      posPixel = f*w + c;
+      Si(aBlanco)
+        [dirDest+posPixel] = 255;
+      Sino
+        [dirDest+posPixel] = 0;
+    }
+  }
+}
+
+
+int detectarV_min(uchar *imgD, int U)
+{
+  //Modifica la variable local “min”, cuyo valor es retornado
+  //por el procedimiento
+
+  dirDest = imgD;
+  f = 0;
+  cont = 0;
+
+  Mientras(f<100 y cont<=U)
+  {
+    cont = 0;
+    Para(c=0; c<320; c++)
+    {
+      Si([dirDest]==255)
+        cont++;
+      dirDest++;
+    }
+    f++
+  }
+  min = f-1;
+}
+
+
+int detectarV_max(uchar *imgD, int U)
+{
+  //Modifica la variable local “max”, cuyo valor es retornado
+  //por el procedimiento
+
+  dirDest = imgD + 320*100-1;
+  f = 99;
+  cont = 0;
+
+  Mientras(f>=0 y cont<=U)
+  {
+    cont = 0;
+    Para(c=0; c<320; c++)
+    {
+      Si([dirDest]==255)
+        cont++;
+      dirDest--;
+    }
+    f--
+  }
+  max = f+1;
+}
+
+
+void detectarH_F1(uchar *imgD, uchar * VA, uchar U)
+{
+  dirVA = VA;
+  Para(c=0; c<320; c++)
+  {
+    dirDest = imgD;
+    cont = 0;
+
+    Para(f=0; f<100; f++)
+    {
+      Si([dirDest+c]==255)
+        cont++;
+      dirDest = dirDest+320;
+    }
+
+    Si(cont>U)
+      [dirVA+c] = 1;
+    Sino
+      [dirVA+c] = 0;
+  }
+}
+
+
+void detectarH_F2(uchar * VA, int * Vh)
+{
+  dirVA = VA;
+  dirVh = Vh;
+  c = 0;
+  nC = 0;
+
+  Mientras(c<320 y nC<7)
+  {
+    Si([dirVA+c] == 1)
+    {
+      iC = c;
+      iC++;
+      
+      Mientras(iC<320 y [dirVA+iC] == 1)
+        iC++;
+
+      tamC = iC-c;
+      [dirVh] = c + tamC/2;
+      dirVh = dirVh+4;
+      nC++;
+      c = iC-1;
+    }
+
+    c++
+  }
+}
+
+
+void recortar(uchar *imgO, uchar *imgD,int x, int y, int w, int h)
+{
+  dirOrig = imgO + 320*y+x;
+  dirDest = imgD;
+
+  Para(f=0; f<h; f++)
+  {
+    Para(c=0; c<w; c++)
+    {
+      [dirDest] = [dirOrig]
+      dirDest++;
+      dirOrig++
+    }
+    dirOrig = dirOrig + 320 - w;
+  }
+}
+
+
+int matching(uchar *caracM, uchar *patrones[31], int ini, int tam)
+{
+  //Modifica la variable local “iMax”, cuyo valor es retornado
+  //por el procedimiento
+
+  dirPatrones = patrones
+  iP = ini;
+  maxSim = -1000
+  
+  Para(nP=0; nP<tam; nP++)
+  {
+    posPatron = iP*8;
+    dirP = [dirPatrones + posPatron];
+    dirCarac = caracM;
+    sim = 0;
+
+    Para(p=0; p < 32*55; p++)
+    {
+      Si([dirCarac] == [dirP])
+      {
+        Si([dirCarac] = 255)
+          sim = sim+3;
+        Sino
+          sim = sim+1;
+      }
+      Sino
+        sim = sim-1;
+    }
+
+    Si(sim>maxSim)
+    {
+      maxSim = sim;
+      iMax = iP;
+    }
+    iP++;
+  }
+}
+
+~~~
